@@ -47,6 +47,7 @@ body {
 }
 .refresh-btn:hover { background: #f3f4f6; }
 .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cowork-only { display: none; }
 
 #loading {
   display: flex;
@@ -297,6 +298,11 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Backspace') pinPress('del');
   else if (e.key === 'Escape') pinPress('clr');
 });
+
+// Hopp over PIN i Cowork
+if (window.cowork) {
+  document.getElementById('pin-screen').style.display = 'none';
+}
 </script>
 
 <div class="page-header">
@@ -304,7 +310,7 @@ document.addEventListener('keydown', e => {
     <h1>✈️ Kommende reiser</h1>
     <div class="sub">Hentet fra Gmail</div>
   </div>
-  <button class="refresh-btn" id="refreshBtn" onclick="loadTrips()">↻ Oppdater</button>
+  <button class="refresh-btn cowork-only" id="refreshBtn" onclick="loadTrips()">↻ Oppdater</button>
 </div>
 
 <div id="loading">
@@ -316,6 +322,11 @@ document.addEventListener('keydown', e => {
 <script>
 const GMAIL = 'mcp__f44e7a5a-d64e-456c-ad4e-bf35098ff337';
 const LAST_UPDATED = '2. mai 2026';
+
+// Vis Oppdater-knappen kun i Cowork
+if (window.cowork) {
+  document.querySelectorAll('.cowork-only').forEach(el => el.style.display = 'flex');
+}
 
 // --- Date helpers ---
 function daysAgoStr(n) {
