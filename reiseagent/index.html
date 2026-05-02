@@ -315,6 +315,7 @@ document.addEventListener('keydown', e => {
 
 <script>
 const GMAIL = 'mcp__f44e7a5a-d64e-456c-ad4e-bf35098ff337';
+const LAST_UPDATED = '2. mai 2026';
 
 // --- Date helpers ---
 function daysAgoStr(n) {
@@ -570,6 +571,37 @@ function renderTrips(trips) {
   }).join('');
 }
 
+// --- Static snapshot (baked in at publish time, used outside Cowork) ---
+const STATIC_TRIPS = [
+  {
+    tripDateStart: '2026-05-15',
+    tripDates: '15–17. mai 2026',
+    tripName: '🇸🇪 Helgetur – Göteborg',
+    bookings: [
+      {
+        type: 'hotel',
+        name: 'Hotel Pigalle',
+        date: 'fredag 15. mai 2026',
+        endDate: 'lørdag 16. mai 2026',
+        ref: '72073875040741',
+        address: 'Södra Hamngatan 2A, 41106 Göteborg, Sverige',
+        mapsQuery: 'Hotel Pigalle Södra Hamngatan 2A Gothenburg',
+        details: 'Rom: Petite Plus · 2 voksne · Innsjekk fra kl. 15:00 · Utsjekk innen kl. 11:00 · Gratis avbestilling frem til 14. mai kl. 15:00'
+      },
+      {
+        type: 'hotel',
+        name: 'Hjortviken Country Club',
+        date: 'lørdag 16. mai 2026',
+        endDate: 'søndag 17. mai 2026',
+        ref: 'KF57TJ14EE',
+        address: 'Hjortviksvägen, Mölnlycke, Sverige',
+        mapsQuery: 'Hjortviken Country Club Mölnlycke Sweden',
+        details: null
+      }
+    ]
+  }
+];
+
 // --- Main ---
 async function loadTrips() {
   const loading = document.getElementById('loading');
@@ -580,6 +612,19 @@ async function loadTrips() {
   main.style.display = 'none';
   btn.disabled = true;
 
+  // Outside Cowork (e.g. GitHub Pages): show static snapshot
+  if (!window.cowork) {
+    loading.style.display = 'none';
+    main.style.display = 'block';
+    btn.disabled = false;
+    main.innerHTML = renderTrips(STATIC_TRIPS) +
+      `<div style="text-align:center;font-size:12px;color:#9ca3af;margin-top:8px">
+        📸 Snapshot · Sist oppdatert av reiseagenten ${LAST_UPDATED}
+      </div>`;
+    return;
+  }
+
+  // Inside Cowork: fetch live from Gmail
   try {
     const result = await window.cowork.callMcpTool(
       GMAIL + '__search_threads',
@@ -589,7 +634,6 @@ async function loadTrips() {
       }
     );
 
-    // Unwrap MCP response envelope: {content, structuredContent, isError}
     let unwrapped = result;
     if (result && result.structuredContent) {
       unwrapped = result.structuredContent;
@@ -608,8 +652,7 @@ async function loadTrips() {
   } catch (err) {
     loading.style.display = 'none';
     main.style.display = 'block';
-    main.innerHTML = `<div class="msg-error">⚠️ Feil: ${err.message}<br><small>${err.stack || ''}</small></div>`;
-    console.error(err);
+    main.innerHTML = `<div class="msg-error">⚠️ Feil: ${err.message}</div>`;
   } finally {
     btn.disabled = false;
   }
