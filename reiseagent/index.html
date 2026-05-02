@@ -1,3 +1,621 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Kommende reiser</title><style>:root{color-scheme:light;--bg:#f0f4f8;--card:#fff;--primary:#1a56db;--text:#111928;--muted:#6b7280;--border:#e5e7eb;--shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)}*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);padding:20px 16px 40px;min-height:100vh}.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:10px}.page-title h1{font-size:20px;font-weight:700}.page-title .sub{font-size:12px;color:var(--muted);margin-top:2px}.refresh-btn{background:#fff;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:13px;font-weight:500;color:var(--primary);cursor:pointer;display:flex;align-items:center;gap:6px}.refresh-btn:hover{background:#f3f4f6}.refresh-btn:disabled{opacity:.5;cursor:not-allowed}#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;color:var(--muted);font-size:14px}.spinner{width:36px;height:36px;border:3px solid #e5e7eb;border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.trip-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;border:1px solid var(--border)}.trip-banner{background:linear-gradient(135deg,#1e40af,#2563eb);padding:18px 22px;display:flex;align-items:center;gap:14px;color:#fff}.trip-emoji{font-size:28px;flex-shrink:0}.trip-meta{flex:1}.trip-name{font-size:17px;font-weight:700}.trip-daterange{font-size:13px;opacity:.82;margin-top:3px}.countdown-badge{flex-shrink:0;font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap}.booking-row{display:flex;align-items:flex-start;gap:14px;padding:16px 22px;border-bottom:1px solid var(--border)}.booking-row:last-of-type{border-bottom:none}.bicon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}.bicon.hotel{background:#ecfdf5}.bicon.flight{background:#eff6ff}.bicon.other{background:#f3f4f6}.binfo{flex:1;min-width:0}.bname{font-size:15px;font-weight:600;margin-bottom:3px}.bdate{font-size:13px;color:var(--muted);margin-bottom:6px}.bref{display:inline-block;font-size:11px;font-weight:500;background:#f3f4f6;color:var(--muted);padding:3px 8px;border-radius:20px;margin-bottom:6px;font-family:monospace}.maps-link{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--primary);text-decoration:none;font-weight:500;margin-top:2px}.maps-link:hover{text-decoration:underline}.bdetails{font-size:12px;color:var(--muted);margin-top:5px}.footer-bar{display:flex;align-items:center;justify-content:flex-end;padding:10px 22px 14px;font-size:11px;color:#9ca3af;gap:6px}.dot{width:6px;height:6px;border-radius:50%;background:#6ee7b7}.msg-empty{background:#fff;border-radius:12px;text-align:center;padding:50px 20px;color:var(--muted);font-size:15px;border:1px solid var(--border)}.msg-error{background:#fde8e8;color:#c81e1e;border-radius:12px;padding:16px 20px;font-size:14px}</style></head><body><div class="page-header"><div class="page-title"><h1>&#9992;&#65039; Kommende reiser</h1><div class="sub">Hentet fra Gmail</div></div><button class="refresh-btn" id="refreshBtn" onclick="loadTrips()">&#8635; Oppdater</button></div><div id="loading"><div class="spinner"></div><div>Henter reiser&#8230;</div></div><div id="main" style="display:none"></div><script>const GMAIL='mcp__f44e7a5a-d64e-456c-ad4e-bf35098ff337';function daysAgoStr(n){const d=new Date();d.setDate(d.getDate()-n);return d.toISOString().split('T')[0].replace(/-/g,'/');}function daysUntil(iso){const now=new Date();now.setHours(0,0,0,0);const d=new Date(iso);d.setHours(0,0,0,0);return Math.round((d-now)/86400000);}function countdownText(d){if(d<0)return null;if(d===0)return'I dag!';if(d===1)return'I morgen';return'Om '+d+' dager';}const MONTHS={jan:1,feb:2,mar:3,mars:3,apr:4,maj:5,mai:5,jun:6,jul:7,aug:8,sep:9,okt:10,oct:10,nov:11,des:12,dec:12};function parseNordicDate(str){const m=str.toLowerCase().match(/(d{1,2})[s.]+([a-zø]+)/);if(!m)return null;const mon=MONTHS[m[2].replace('.','')];if(!mon)return null;return'2026-'+String(mon).padStart(2,'0')+'-'+String(parseInt(m[1])).padStart(2,'0');}function formatDate(iso){if(!iso)return'';return new Date(iso+'T12:00:00').toLocaleDateString('nb-NO',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}function formatRange(s,e){const sd=new Date(s+'T12:00:00'),ed=new Date(e+'T12:00:00'),o={day:'numeric',month:'long'};if(s===e)return sd.toLocaleDateString('nb-NO',Object.assign({},o,{year:'numeric'}));return sd.toLocaleDateString('nb-NO',o)+'–'+ed.toLocaleDateString('nb-NO',Object.assign({},o,{year:'numeric'}));}function mapsUrl(q){return'https://www.google.com/maps/search/'+encodeURIComponent(q);}function parseThreads(threads){const bookings=[];for(const t of threads){const msg=t.messages[0],snip=(msg.snippet||''),from=(msg.sender||'').toLowerCase();if(from.includes('hotels.com')){const rm=msg.subject.match(/reiserutenr.?s*(d+)/i),dm=msg.subject.match(/–s*(w+.?s*d+.?s*w+)s*–/i);const ci=dm?parseNordicDate(dm[1]):null,ref=rm?rm[1]:null;const known={'72073875040741':{name:'Hotel Pigalle',address:'Södra Hamngatan 2A, 41106 Göteborg, Sverige',mapsQuery:'Hotel Pigalle Södra Hamngatan 2A Gothenburg',endDate:'2026-05-16',details:'Rom: Petite Plus · 2 voksne · Innsjekk fra kl. 15:00 · Utsjekk innen kl. 11:00 · Gratis avbestilling frem til 14. mai kl. 15:00'}};if(ci&&new Date(ci)>=new Date()){const k=ref?known[ref]:null;bookings.push({type:'hotel',name:k?k.name:'Hotell via Hotels.com',checkinISO:ci,date:formatDate(ci),endDate:k?formatDate(k.endDate):null,ref,address:k?k.address:null,mapsQuery:k?k.mapsQuery:null,details:k?k.details:null});}}if(from.includes('bookvisit')||snip.toLowerCase().includes('hjortviken')){const rm=snip.match(/([A-Z0-9]{8,14})/),im=snip.match(/Incheckning:s*([^
-]+?)(?:Utcheckning|$)/i),om=snip.match(/Utcheckning:s*([^
-]+?)(?:s{2,}|$)/i),nm=snip.match(/bokning hos oss på ([^.]+)/i);const hn=nm?nm[1].trim():'Hjortviken Country Club',ci=im?parseNordicDate(im[1]):null,co=om?parseNordicDate(om[1]):null;if(ci&&new Date(ci)>=new Date()){const isH=hn.toLowerCase().includes('hjortviken');bookings.push({type:'hotel',name:hn,checkinISO:ci,date:formatDate(ci),endDate:co?formatDate(co):null,ref:rm?rm[1]:null,address:isH?'Hjortviksvägen, Mölnlycke, Sverige':null,mapsQuery:isH?'Hjortviken Country Club Mölnlycke Sweden':hn});}}}return bookings;}function groupTrips(bookings){if(!bookings.length)return[];bookings.sort((a,b)=>new Date(a.checkinISO)-new Date(b.checkinISO));const trips=[];let cur={s:bookings[0].checkinISO,b:[bookings[0]]};for(let i=1;i<bookings.length;i++){const b=bookings[i],gap=(new Date(b.checkinISO)-new Date(cur.b[cur.b.length-1].checkinISO))/86400000;if(gap<=4)cur.b.push(b);else{trips.push(cur);cur={s:b.checkinISO,b:[b]};}}trips.push(cur);return trips.map(t=>{const e=t.b[t.b.length-1].checkinISO;let n='🌍 Reise';for(const b of t.b){if((b.name&&b.name.toLowerCase().includes('hjortviken'))||(b.mapsQuery&&b.mapsQuery.toLowerCase().includes('gothenburg'))){n='🇸🇪 Helgetur – Göteborg';break;}}return{tripDateStart:t.s,tripDates:formatRange(t.s,e),tripName:n,bookings:t.b};});}function renderTrips(trips){if(!trips||!trips.length)return'<div class="msg-empty">🗺️ Ingen kommende reiser funnet i Gmail.</div>';return trips.map(trip=>{const days=daysUntil(trip.tripDateStart),badge=countdownText(days);const bhtml=trip.bookings.map(b=>{const icon=b.type==='hotel'?'🏸':b.type==='flight'?'✈️':'📋',cls=b.type||'other';const ml=b.mapsQuery?'<a class="maps-link" href="'+mapsUrl(b.mapsQuery)+'" target="_blank">📍 '+(b.address||b.mapsQuery)+'</a>':'';return'<div class="booking-row"><div class="bicon '+cls+'">'+icon+'</div><div class="binfo"><div class="bname">'+b.name+'</div><div class="bdate">'+b.date+(b.endDate?' → '+b.endDate:'')+'</div>'+(b.ref?'<span class="bref">Ref: '+b.ref+'</span><br>':'')+ml+(b.details?'<div class="bdetails">'+b.details+'</div>':'')+'</div></div>';}).join('');return'<div class="trip-card"><div class="trip-banner"><span class="trip-emoji">🌍</span><div class="trip-meta"><div class="trip-name">'+trip.tripName+'</div><div class="trip-daterange">'+trip.tripDates+'</div></div>'+(badge?'<span class="countdown-badge">'+badge+'</span>':'')+'</div>'+bhtml+'<div class="footer-bar"><span class="dot"></span>Oppdatert '+new Date().toLocaleString('nb-NO',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</div></div>';}).join('');}async function loadTrips(){const L=document.getElementById('loading'),M=document.getElementById('main'),B=document.getElementById('refreshBtn');L.style.display='flex';M.style.display='none';B.disabled=true;try{const r=await window.cowork.callMcpTool(GMAIL+'__search_threads',{query:'(hotel OR booking OR bookvisit OR airlines OR SAS OR Norwegian OR Ryanair OR "booking.com" OR airbnb OR flight) after:'+daysAgoStr(90),pageSize:25});let u=r;if(r&&r.structuredContent)u=r.structuredContent;else if(r&&r.content&&Array.isArray(r.content)){try{u=JSON.parse(r.content[0].text);}catch(e){}}const threads=(u&&u.threads)?u.threads:[];M.innerHTML=renderTrips(groupTrips(parseThreads(threads)));}catch(e){M.innerHTML='<div class="msg-error">⚠️ Feil: '+e.message+'</div>';}L.style.display='none';M.style.display='block';B.disabled=false;}loadTrips();</script></body></html>
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kommende reiser</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --primary: #1a56db;
+  --text: #111928;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px 16px 40px;
+  min-height: 100vh;
+}
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 10px;
+}
+.page-title h1 { font-size: 20px; font-weight: 700; }
+.page-title .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.refresh-btn {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.refresh-btn:hover { background: #f3f4f6; }
+.refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+#loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #e5e7eb;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.trip-card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.trip-banner {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: white;
+}
+.trip-emoji { font-size: 28px; flex-shrink: 0; }
+.trip-meta { flex: 1; }
+.trip-name { font-size: 17px; font-weight: 700; }
+.trip-daterange { font-size: 13px; opacity: 0.82; margin-top: 3px; }
+.countdown-badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.35);
+  white-space: nowrap;
+}
+
+.booking-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.booking-row:last-of-type { border-bottom: none; }
+.booking-row:hover { background: #f9fafb; }
+
+.bicon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.bicon.hotel { background: #ecfdf5; }
+.bicon.flight { background: #eff6ff; }
+.bicon.car { background: #fffbeb; }
+.bicon.other { background: #f3f4f6; }
+
+.binfo { flex: 1; min-width: 0; }
+.bname { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+.bdate { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.bref {
+  display: inline-block;
+  font-size: 11px; font-weight: 500;
+  background: #f3f4f6; color: var(--muted);
+  padding: 3px 8px; border-radius: 20px;
+  margin-bottom: 6px;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+}
+.maps-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; color: var(--primary);
+  text-decoration: none; font-weight: 500;
+  margin-top: 2px;
+}
+.maps-link:hover { text-decoration: underline; }
+.bdetails { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+.footer-bar {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 10px 22px 14px;
+  font-size: 11px; color: #9ca3af;
+  gap: 6px;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #6ee7b7; }
+
+.msg-empty {
+  background: white; border-radius: 12px;
+  text-align: center; padding: 50px 20px;
+  color: var(--muted); font-size: 15px;
+  border: 1px solid var(--border);
+}
+.msg-error {
+  background: #fde8e8; color: #c81e1e;
+  border-radius: 12px; padding: 16px 20px;
+  font-size: 14px;
+}
+
+/* PIN screen */
+#pin-screen {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.pin-box {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 32px;
+  text-align: center;
+  width: 300px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.pin-box .lock { font-size: 40px; margin-bottom: 16px; }
+.pin-box h2 { font-size: 18px; font-weight: 700; color: #111928; margin-bottom: 6px; }
+.pin-box p { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+.pin-dots {
+  display: flex; justify-content: center; gap: 12px;
+  margin-bottom: 28px;
+}
+.pin-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  transition: background 0.15s;
+}
+.pin-dot.filled { background: #1a56db; }
+.pin-dot.error { background: #ef4444; }
+.pin-keypad {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.pin-key {
+  background: #f3f4f6; border: none;
+  border-radius: 12px; padding: 16px;
+  font-size: 18px; font-weight: 600;
+  color: #111928; cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+}
+.pin-key:hover { background: #e5e7eb; }
+.pin-key:active { transform: scale(0.94); }
+.pin-key.del { font-size: 16px; color: #6b7280; }
+.pin-error-msg {
+  font-size: 13px; color: #ef4444;
+  margin-top: 16px; min-height: 20px;
+  font-weight: 500;
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+.shake { animation: shake 0.4s ease; }
+</style>
+</head>
+<body>
+
+<!-- PIN screen -->
+<div id="pin-screen">
+  <div class="pin-box" id="pinBox">
+    <div class="lock">🔒</div>
+    <h2>Kommende reiser</h2>
+    <p>Skriv inn PIN-kode</p>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key del" onclick="pinPress('del')">⌫</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key del" onclick="pinPress('clr')">✕</button>
+    </div>
+    <div class="pin-error-msg" id="pinError"></div>
+  </div>
+</div>
+
+<script>
+const PIN = '1307';
+let entered = '';
+
+function pinPress(val) {
+  const err = document.getElementById('pinError');
+  err.textContent = '';
+  if (val === 'del') { entered = entered.slice(0,-1); }
+  else if (val === 'clr') { entered = ''; }
+  else if (entered.length < 4) { entered += val; }
+  updateDots();
+  if (entered.length === 4) checkPin();
+}
+
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('d' + i);
+    dot.classList.toggle('filled', i < entered.length);
+    dot.classList.remove('error');
+  }
+}
+
+function checkPin() {
+  if (entered === PIN) {
+    document.getElementById('pin-screen').style.display = 'none';
+  } else {
+    const box = document.getElementById('pinBox');
+    const dots = document.querySelectorAll('.pin-dot');
+    dots.forEach(d => { d.classList.remove('filled'); d.classList.add('error'); });
+    box.classList.add('shake');
+    document.getElementById('pinError').textContent = 'Feil PIN-kode, prøv igjen';
+    setTimeout(() => {
+      box.classList.remove('shake');
+      dots.forEach(d => d.classList.remove('error'));
+      entered = '';
+    }, 600);
+  }
+}
+
+// Keyboard support
+document.addEventListener('keydown', e => {
+  if (document.getElementById('pin-screen').style.display === 'none') return;
+  if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+  else if (e.key === 'Backspace') pinPress('del');
+  else if (e.key === 'Escape') pinPress('clr');
+});
+</script>
+
+<div class="page-header">
+  <div class="page-title">
+    <h1>✈️ Kommende reiser</h1>
+    <div class="sub">Hentet fra Gmail</div>
+  </div>
+  <button class="refresh-btn" id="refreshBtn" onclick="loadTrips()">↻ Oppdater</button>
+</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div>Henter reiser fra Gmail…</div>
+</div>
+<div id="main" style="display:none"></div>
+
+<script>
+const GMAIL = 'mcp__f44e7a5a-d64e-456c-ad4e-bf35098ff337';
+
+// --- Date helpers ---
+function daysAgoStr(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().split('T')[0].replace(/-/g, '/');
+}
+function daysUntil(isoDate) {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const d = new Date(isoDate); d.setHours(0,0,0,0);
+  return Math.round((d - now) / 86400000);
+}
+function countdownText(days) {
+  if (days < 0)  return null;
+  if (days === 0) return 'I dag! 🎉';
+  if (days === 1) return 'I morgen';
+  return `Om ${days} dager`;
+}
+
+// --- Month name → ISO month number ---
+const MONTHS = {
+  jan:1,feb:2,mar:3,mars:3,apr:4,maj:5,mai:5,jun:6,
+  jul:7,aug:8,sep:9,okt:10,oct:10,nov:11,des:12,dec:12
+};
+function parseNordicDate(str) {
+  // Matches "16 maj", "lör 16 maj", "fre. 15. mai", "sön 17 maj" etc.
+  const m = str.toLowerCase().match(/(\d{1,2})[\s.]+([a-zø]+)/);
+  if (!m) return null;
+  const day = parseInt(m[1]);
+  const mon = MONTHS[m[2].replace('.','')];
+  if (!mon) return null;
+  const year = 2026; // current year context
+  return `${year}-${String(mon).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+}
+
+// --- Core parser: threads → trip bookings ---
+function parseThreads(threads) {
+  const bookings = [];
+
+  for (const thread of threads) {
+    const msg = thread.messages[0];
+    const subject = (msg.subject || '').toLowerCase();
+    const snippet = (msg.snippet || '');
+    const sender  = (msg.sender  || '').toLowerCase();
+    const body    = (msg.plaintextBody || '');
+
+    // ---- Hotels.com ----
+    if (sender.includes('hotels.com') || sender.includes('eg.hotels.com')) {
+      // Subject e.g. "Reisebekreftelse fra Hotels.com – fre. 15. mai – reiserutenr. 72073875040741"
+      const refMatch   = msg.subject.match(/reiserutenr\.?\s*(\d+)/i);
+      const dateMatch  = msg.subject.match(/–\s*(\w+\.?\s*\d+\.?\s*\w+)\s*–/i);
+      const checkinISO = dateMatch ? parseNordicDate(dateMatch[1]) : null;
+      const ref        = refMatch ? refMatch[1] : null;
+
+      // Known booking details (Hotels.com sends HTML-only emails, so we hardcode extracted info)
+      const knownBookings = {
+        '72073875040741': {
+          name: 'Hotel Pigalle',
+          address: 'Södra Hamngatan 2A, 41106 Göteborg, Sverige',
+          mapsQuery: 'Hotel Pigalle Södra Hamngatan 2A Gothenburg',
+          endDate: '2026-05-16',
+          details: 'Rom: Petite Plus · 2 voksne · Innsjekk fra kl. 15:00 · Utsjekk innen kl. 11:00 · Gratis avbestilling frem til 14. mai kl. 15:00'
+        }
+      };
+
+      if (checkinISO && new Date(checkinISO) >= new Date()) {
+        const known = ref ? knownBookings[ref] : null;
+        bookings.push({
+          type: 'hotel',
+          name: known ? known.name : 'Hotell via Hotels.com',
+          checkinISO,
+          date: formatDate(checkinISO),
+          endDate: known ? formatDate(known.endDate) : null,
+          ref,
+          address: known ? known.address : null,
+          mapsQuery: known ? known.mapsQuery : null,
+          details: known ? known.details : 'Se hotel-detaljer i Hotels.com-appen'
+        });
+      }
+    }
+
+    // ---- bookvisit.com (Hjortviken etc.) ----
+    if (sender.includes('bookvisit') || snippet.toLowerCase().includes('hjortviken')) {
+      const refMatch  = snippet.match(/\b([A-Z0-9]{8,14})\b/);
+      const inMatch   = snippet.match(/Incheckning:\s*([^\n]+?)(?:Utcheckning|$)/i);
+      const outMatch  = snippet.match(/Utcheckning:\s*([^\n]+?)(?:\s{2,}|$)/i);
+      const nameMatch = snippet.match(/bokning hos oss på ([^.]+)/i);
+      const hotelName = nameMatch ? nameMatch[1].trim() : 'Hjortviken Country Club';
+
+      const checkinISO  = inMatch  ? parseNordicDate(inMatch[1])  : null;
+      const checkoutISO = outMatch ? parseNordicDate(outMatch[1]) : null;
+
+      if (checkinISO && new Date(checkinISO) >= new Date()) {
+        // Known address for Hjortviken
+        const isHjort = hotelName.toLowerCase().includes('hjortviken');
+        bookings.push({
+          type: 'hotel',
+          name: hotelName,
+          checkinISO,
+          date: formatDate(checkinISO),
+          endDate: checkoutISO ? formatDate(checkoutISO) : null,
+          ref: refMatch ? refMatch[1] : null,
+          address: isHjort ? 'Hjortviksvägen, Mölnlycke, Sverige' : null,
+          mapsQuery: isHjort ? 'Hjortviken Country Club Mölnlycke Sweden' : hotelName
+        });
+      }
+    }
+
+    // ---- SAS flights ----
+    if (sender.includes('flysas') || sender.includes('@sas') || subject.includes('sas')) {
+      const refMatch = msg.subject.match(/\b([A-Z0-9]{6})\b/);
+      // Try to find future date in subject
+      const dateMatch = msg.subject.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/i);
+      if (dateMatch) {
+        const isoDate = `${dateMatch[3]}-${String(MONTHS[dateMatch[2].toLowerCase().slice(0,3)] || 1).padStart(2,'0')}-${String(parseInt(dateMatch[1])).padStart(2,'0')}`;
+        if (isoDate && new Date(isoDate) >= new Date()) {
+          bookings.push({
+            type: 'flight',
+            name: 'SAS',
+            checkinISO: isoDate,
+            date: formatDate(isoDate),
+            ref: refMatch ? refMatch[1] : null,
+            address: null,
+            mapsQuery: null
+          });
+        }
+      }
+    }
+
+    // ---- Brussels Airlines ----
+    if (sender.includes('brusselsairlines') || subject.includes('brussels')) {
+      const refMatch  = snippet.match(/Booking Code:\s*([A-Z0-9]+)/i) || msg.subject.match(/\b([A-Z0-9]{6})\b/);
+      const dateMatch = msg.subject.match(/(\d{2})\s+(\w+)\s+(\d{4})/i);
+      if (dateMatch) {
+        const isoDate = `${dateMatch[3]}-${String(MONTHS[dateMatch[2].toLowerCase().slice(0,3)] || 1).padStart(2,'0')}-${String(parseInt(dateMatch[1])).padStart(2,'0')}`;
+        if (isoDate && new Date(isoDate) >= new Date()) {
+          bookings.push({ type: 'flight', name: 'Brussels Airlines', checkinISO: isoDate, date: formatDate(isoDate), ref: refMatch ? refMatch[1] : null });
+        }
+      }
+    }
+  }
+
+  return bookings;
+}
+
+// --- Group bookings into trips (bookings within 4 days = same trip) ---
+function groupIntoTrips(bookings) {
+  if (bookings.length === 0) return [];
+
+  // Sort by date
+  bookings.sort((a, b) => new Date(a.checkinISO) - new Date(b.checkinISO));
+
+  const trips = [];
+  let current = { startISO: bookings[0].checkinISO, bookings: [bookings[0]] };
+
+  for (let i = 1; i < bookings.length; i++) {
+    const b = bookings[i];
+    const lastISO = current.bookings[current.bookings.length - 1].checkinISO;
+    const gap = (new Date(b.checkinISO) - new Date(lastISO)) / 86400000;
+    if (gap <= 4) {
+      current.bookings.push(b);
+    } else {
+      trips.push(current);
+      current = { startISO: b.checkinISO, bookings: [b] };
+    }
+  }
+  trips.push(current);
+
+  return trips.map(t => {
+    const endISO = t.bookings[t.bookings.length - 1].checkinISO;
+    return {
+      tripDateStart: t.startISO,
+      tripDates: formatDateRange(t.startISO, endISO),
+      tripName: inferTripName(t.bookings),
+      bookings: t.bookings
+    };
+  });
+}
+
+// --- Helpers ---
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('nb-NO', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+function formatDateRange(startISO, endISO) {
+  const s = new Date(startISO + 'T12:00:00');
+  const e = new Date(endISO  + 'T12:00:00');
+  const opts = { day:'numeric', month:'long' };
+  if (startISO === endISO) return s.toLocaleDateString('nb-NO', { ...opts, year:'numeric' });
+  return s.toLocaleDateString('nb-NO', opts) + '–' + e.toLocaleDateString('nb-NO', { ...opts, year:'numeric' });
+}
+function inferTripName(bookings) {
+  for (const b of bookings) {
+    if (b.mapsQuery && b.mapsQuery.toLowerCase().includes('göteborg')) return '🇸🇪 Helgetur – Göteborg';
+    if (b.mapsQuery && b.mapsQuery.toLowerCase().includes('mölnlycke')) return '🇸🇪 Helgetur – Göteborg';
+    if (b.name.toLowerCase().includes('hjortviken')) return '🇸🇪 Helgetur – Göteborg';
+    if (b.name.toLowerCase().includes('brussels')) return '🇧🇪 Tur til Brussel';
+  }
+  // Guess from hotel names
+  const names = bookings.map(b => b.name).join(' ');
+  return '🌍 Reise – ' + formatDate(bookings[0].checkinISO).split(' ').slice(1).join(' ');
+}
+
+function mapsUrl(q) {
+  return 'https://www.google.com/maps/search/' + encodeURIComponent(q);
+}
+
+// --- Render ---
+function renderTrips(trips) {
+  if (!trips || trips.length === 0) {
+    return '<div class="msg-empty">🗺️ Ingen kommende reiser funnet i Gmail.</div>';
+  }
+
+  return trips.map(trip => {
+    const days = daysUntil(trip.tripDateStart);
+    const badge = countdownText(days);
+
+    const bookingsHtml = trip.bookings.map(b => {
+      const [icon, cls] = b.type === 'hotel' ? ['🏨','hotel'] : b.type === 'flight' ? ['✈️','flight'] : ['📋','other'];
+      const mapsHtml = b.mapsQuery
+        ? `<a class="maps-link" href="${mapsUrl(b.mapsQuery)}" target="_blank">📍 ${b.address || b.mapsQuery}</a>`
+        : '';
+      return `
+        <div class="booking-row">
+          <div class="bicon ${cls}">${icon}</div>
+          <div class="binfo">
+            <div class="bname">${b.name}</div>
+            <div class="bdate">${b.date}${b.endDate ? ' → ' + b.endDate : ''}</div>
+            ${b.ref ? `<span class="bref">Ref: ${b.ref}</span><br>` : ''}
+            ${mapsHtml}
+            ${b.details ? `<div class="bdetails">${b.details}</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="trip-card">
+        <div class="trip-banner">
+          <span class="trip-emoji">🌍</span>
+          <div class="trip-meta">
+            <div class="trip-name">${trip.tripName}</div>
+            <div class="trip-daterange">${trip.tripDates}</div>
+          </div>
+          ${badge ? `<span class="countdown-badge">${badge}</span>` : ''}
+        </div>
+        ${bookingsHtml}
+        <div class="footer-bar">
+          <span class="dot"></span>
+          Oppdatert ${new Date().toLocaleString('nb-NO', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// --- Main ---
+async function loadTrips() {
+  const loading = document.getElementById('loading');
+  const main    = document.getElementById('main');
+  const btn     = document.getElementById('refreshBtn');
+
+  loading.style.display = 'flex';
+  main.style.display = 'none';
+  btn.disabled = true;
+
+  try {
+    const result = await window.cowork.callMcpTool(
+      GMAIL + '__search_threads',
+      {
+        query: '(hotel OR booking OR bookvisit OR airlines OR SAS OR Norwegian OR Ryanair OR "booking.com" OR airbnb OR flight) after:' + daysAgoStr(90),
+        pageSize: 25
+      }
+    );
+
+    // Unwrap MCP response envelope: {content, structuredContent, isError}
+    let unwrapped = result;
+    if (result && result.structuredContent) {
+      unwrapped = result.structuredContent;
+    } else if (result && result.content && Array.isArray(result.content)) {
+      try { unwrapped = JSON.parse(result.content[0].text); } catch(e) {}
+    }
+
+    const threads = (unwrapped && unwrapped.threads) ? unwrapped.threads : [];
+    const bookings = parseThreads(threads);
+    const trips    = groupIntoTrips(bookings);
+
+    loading.style.display = 'none';
+    main.style.display = 'block';
+    main.innerHTML = renderTrips(trips);
+
+  } catch (err) {
+    loading.style.display = 'none';
+    main.style.display = 'block';
+    main.innerHTML = `<div class="msg-error">⚠️ Feil: ${err.message}<br><small>${err.stack || ''}</small></div>`;
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+loadTrips();
+</script>
+</body>
+</html>
