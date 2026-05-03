@@ -62,11 +62,13 @@
       ],
       teknisk: [
         { id: "t1", navn: "Microsoft Excel", farge: "emerald" },
-        { id: "t2", navn: "R", farge: "blue" },
         { id: "t3", navn: "Stata", farge: "violet" },
         { id: "t4", navn: "Power BI", farge: "amber" },
         { id: "t5", navn: "PowerPoint", farge: "rose" },
         { id: "t6", navn: "Word", farge: "cyan" },
+        { id: "t7", navn: "Python", farge: "blue" },
+        { id: "t8", navn: "ChatGPT", farge: "emerald" },
+        { id: "t9", navn: "Claude", farge: "violet" },
       ],
       personlig: [
         { id: "p1", navn: "Kommunikasjon", farge: "violet" },
@@ -257,7 +259,7 @@
               <span class="p-contact">✉ ${escapeHtml(data.kontakt.epost)}</span>
               <span class="p-contact">☎ ${escapeHtml(data.kontakt.telefon)}</span>
               <span class="p-contact">⌖ Bergen / Oslo</span>
-              <span class="p-contact">LinkedIn ↗</span>
+              <span class="p-contact"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg> LinkedIn</span>
             </div>
           </div>
           ${portrettSrc ? `<div class="p-portrett"><img src="${portrettSrc}" alt="Ina Rønningen"></div>` : ''}
@@ -379,7 +381,7 @@
                 <a href={`mailto:${data.kontakt.epost}`} className="gl-chip" style={{ textDecoration: 'none', color: 'inherit' }}>✉ {data.kontakt.epost}</a>
                 <span className="gl-chip">☎ {data.kontakt.telefon}</span>
                 <span className="gl-chip">⌖ Bergen / Oslo</span>
-                <a href="https://www.linkedin.com/in/ina-r%C3%B8nningen-667992379/" target="_blank" rel="noopener" className="gl-chip" style={{ textDecoration: 'none', color: 'inherit' }}>LinkedIn ↗</a>
+                <a href="https://www.linkedin.com/in/ina-r%C3%B8nningen-667992379/" target="_blank" rel="noopener" className="gl-chip" style={{ textDecoration: 'none', color: 'inherit' }}><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg> LinkedIn ↗</a>
               </div>
             </div>
             <div style={{ flex: '0 0 auto' }}>
