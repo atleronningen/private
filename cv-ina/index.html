@@ -9,8 +9,10 @@
       font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
       min-height: 100vh; width: 100%; max-width: 100vw; overflow-x: hidden; }
     html { background: #050309; overscroll-behavior: none; }
-    body { background: #050309 radial-gradient(ellipse at top left, oklch(28% 0.08 280) 0%, #0a0612 35%, #050309 100%) no-repeat fixed; }
-    #app { min-height: 100vh; width: 100%; overflow-x: hidden; }
+    body { background: #050309; position: relative; }
+    body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background: radial-gradient(ellipse at top left, oklch(28% 0.08 280) 0%, #0a0612 35%, #050309 100%); }
+    #app { min-height: 100vh; width: 100%; overflow-x: hidden; position: relative; z-index: 0; }
     @media print {
       .no-print, [data-no-print] { display: none !important; }
     }
