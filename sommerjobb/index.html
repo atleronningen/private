@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sommerjobb 2026 – Finans Oslo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1923;
+    --cream: #f8f4ee;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --accent: #1a3a5c;
+    --accent2: #2e6b3e;
+    --warn: #8b3a1e;
+    --muted: #6b7280;
+    --card-bg: #ffffff;
+    --border: #e5ddd0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 60px 40px 50px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    border: 2px solid rgba(201,168,76,0.2);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 20%;
+    width: 200px; height: 200px;
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 50%;
+  }
+  .header-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+  .header-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.4);
+    padding: 4px 12px;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+  header h1 em { color: var(--gold); font-style: italic; }
+  header p.lead {
+    font-size: 16px;
+    color: rgba(248,244,238,0.72);
+    max-width: 560px;
+    font-weight: 300;
+  }
+  .header-meta {
+    margin-top: 28px;
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    font-size: 12px;
+    color: rgba(248,244,238,0.6);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .meta-pill span { color: var(--gold-light); font-weight: 500; }
+
+  /* ALERT BOX */
+  .alert-box {
+    background: #fff8f0;
+    border-left: 4px solid var(--warn);
+    padding: 20px 28px;
+    margin: 36px auto;
+    max-width: 860px;
+    border-radius: 0 4px 4px 0;
+  }
+  .alert-box strong { color: var(--warn); }
+
+  /* MAIN LAYOUT */
+  main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTION HEADERS */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+    margin-top: 52px;
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: var(--ink);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    margin: 28px 0 10px;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+  p { margin-bottom: 14px; color: #2d3748; }
+
+  /* STATUS BADGE */
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .badge-open { background: #d1fae5; color: #065f46; }
+  .badge-closed { background: #fee2e2; color: #7f1d1d; }
+  .badge-rolling { background: #dbeafe; color: #1e3a8a; }
+  .badge-proactive { background: #fef3c7; color: #78350f; }
+
+  /* OPPORTUNITY CARDS */
+  .opp-grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .opp-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 22px 24px;
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+  .opp-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+  .opp-card.priority {
+    border-left: 3px solid var(--gold);
+  }
+  .opp-card.proactive {
+    border-left: 3px solid var(--accent2);
+  }
+  .opp-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 12px;
+  }
+  .opp-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .opp-type {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-weight: 500;
+  }
+  .opp-desc { font-size: 14px; color: #4a5568; margin-bottom: 12px; }
+  .opp-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+  .opp-meta-item strong { color: var(--ink); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .opp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    border: 1px solid rgba(26,58,92,0.3);
+    padding: 4px 10px;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .opp-link:hover { background: var(--accent); color: #fff; }
+
+  /* TABLE */
+  .deadline-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 16px;
+  }
+  .deadline-table th {
+    background: var(--ink);
+    color: var(--cream);
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .deadline-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .deadline-table tr:nth-child(even) td { background: #faf8f4; }
+  .deadline-table tr:hover td { background: #f0ece4; }
+  .deadline-table td a { color: var(--accent); text-decoration: none; font-size: 12px; }
+  .deadline-table td a:hover { text-decoration: underline; }
+  .firm-name { font-weight: 600; color: var(--ink); }
+  .closed-text { color: #9ca3af; font-style: italic; }
+
+  /* TIMELINE */
+  .timeline {
+    margin-top: 20px;
+    position: relative;
+    padding-left: 28px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px; top: 8px; bottom: 8px;
+    width: 2px;
+    background: var(--border);
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 24px;
+  }
+  .tl-dot {
+    position: absolute;
+    left: -25px;
+    top: 5px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--cream);
+    box-shadow: 0 0 0 2px var(--gold);
+  }
+  .tl-period {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .tl-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .tl-desc { font-size: 13px; color: var(--muted); }
+
+  /* TIP BOX */
+  .tip-box {
+    background: #f0f7f2;
+    border: 1px solid #c6e0cc;
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 24px 0;
+    font-size: 14px;
+  }
+  .tip-box strong { color: var(--accent2); }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    color: rgba(248,244,238,0.5);
+    text-align: center;
+    padding: 28px;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    margin-top: 60px;
+  }
+  footer span { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-tag">Karriereguide · Mai 2026</div>
+    <h1>Sommerjobb i finans<br><em>Oslo 2026</em></h1>
+    <p class="lead">En fullstendig oversikt over muligheter, frister og strategi for en NHH MSc Financial Economics-student på vei inn i siste studieår.</p>
+    <div class="header-meta">
+      <div class="meta-pill">Kandidat: <span>NHH MSc Financial Economics, 1. år</span></div>
+      <div class="meta-pill">Periode: <span>Slutten av juni – slutten av august 2026</span></div>
+      <div class="meta-pill">Geografi: <span>Oslo og omegn</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="alert-box">
+    <strong>⚠ Viktig situasjonsbilde:</strong> Den formelle sommerjobb-runden 2026 for de fleste store Oslo-arbeidsgivere innen finans er i praksis over. Søknadsfristene lå mellom august 2025 og mars 2026. Det betyr at proaktiv åpen søknad til boutique-selskaper og familiekontorer nå er den mest realistiske veien til en relevant sommerjobb. Denne rapporten viser hva som fortsatt er mulig, og gir en komplett oversikt for videre planlegging.
+  </div>
+
+  <!-- SECTION 1: ÅPNE MULIGHETER -->
+  <div class="section-label">Prioritet 1 — Søk denne uken</div>
+  <h2>Fortsatt åpne kanaler for sommer 2026</h2>
+
+  <div class="opp-grid">
+
+    <div class="opp-card priority">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Pareto Securities <span class="badge badge-open">Åpen</span></div>
+          <div class="opp-type">Investment Banking · Løpende søknad</div>
+        </div>
+        <a href="https://paretosec.com/updates/vacant-positions/intern-investment-banking" target="_blank" class="opp-link">Søk her ↗</a>
+      </div>
+      <div class="opp-desc">Pareto Securities er Norges ledende uavhengige investeringsbank og har en åpen, løpende søknad for IB-internship hele året. Kandidaten oppgir selv ønsket internship-periode (minimum 3 måneder). Dette er det viktigste enkeltsteget å ta nå – Pareto er NHH-tung og en NHH Financial Economics-profil er direkte i målgruppen.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Frist</strong>Løpende – søk umiddelbart</div>
+        <div class="opp-meta-item"><strong>Varighet</strong>Min. 3 måneder</div>
+        <div class="opp-meta-item"><strong>Periode</strong>Juni–august (oppgis selv)</div>
+        <div class="opp-meta-item"><strong>Type</strong>IB, M&A, ECM, DCM</div>
+      </div>
+    </div>
+
+    <div class="opp-card priority">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">McKinsey & Company Norge <span class="badge badge-rolling">Løpende</span></div>
+          <div class="opp-type">Managementkonsulent · Rolling applications</div>
+        </div>
+        <a href="https://www.mckinsey.com/no/careers/internship-opportunities" target="_blank" class="opp-link">Søk her ↗</a>
+      </div>
+      <div class="opp-desc">McKinsey Oslo tar internstudenter løpende gjennom hele året. Datoer og varighet avtales individuelt. Krever norskkunnskaper. NHH-kandidater er sterkt representert i McKinseys norske konsulentmasse, og Financial Economics er en foretrukket bakgrunn.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Frist</strong>Løpende</div>
+        <div class="opp-meta-item"><strong>Varighet</strong>Avtales individuelt</div>
+        <div class="opp-meta-item"><strong>Krav</strong>Norsk flytende</div>
+        <div class="opp-meta-item"><strong>Type</strong>Strategi, analyse, transformasjon</div>
+      </div>
+    </div>
+
+    <div class="opp-card priority">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Arctic Securities <span class="badge badge-rolling">Åpen søknad</span></div>
+          <div class="opp-type">Investment Banking / Equity Research · Proaktiv</div>
+        </div>
+        <a href="https://www.arctic.com/career/open-positions" target="_blank" class="opp-link">Karrieresider ↗</a>
+      </div>
+      <div class="opp-desc">Arctic Securities sier eksplisitt på sine karrieresider at de alltid er interessert i å høre fra relevante kandidater utenfor formelle søknadsrunder. Send en kortfattet e-post direkte til HR med CV og karakterutskrift.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Frist</strong>Ingen formell frist – kontakt nå</div>
+        <div class="opp-meta-item"><strong>Kontakt</strong>career@arctic.com</div>
+        <div class="opp-meta-item"><strong>Type</strong>IB, Equity Research, Credit</div>
+      </div>
+    </div>
+
+    <div class="opp-card priority">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Bain & Company Norge <span class="badge badge-rolling">Deltid / løpende</span></div>
+          <div class="opp-type">Managementkonsulent · Junior Associate Consultant</div>
+        </div>
+        <a href="https://www.bain.com/careers/find-a-role/?office=Oslo" target="_blank" class="opp-link">Se stillinger ↗</a>
+      </div>
+      <div class="opp-desc">Bains deltids-JAC-rolle (Junior Associate Consultant) er en løpende stilling for masterstudenter. Kan kombineres med studier, og er relevant erfaring frem mot ferdig master i 2027.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Frist</strong>Løpende</div>
+        <div class="opp-meta-item"><strong>Type</strong>Deltid, strategi og analyse</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 2: ÅPEN SØKNAD -->
+  <div class="section-label">Prioritet 2 — Proaktiv åpen søknad</div>
+  <h2>Boutique-selskaper og familiekontorer</h2>
+
+  <p>Disse selskapene har ingen formell annonse nå, men er realistiske mål for proaktiv kontakt. Beslutninger tas av partnere og forvaltere, ikke HR-systemer, og NHH-alumninettverket er sterkt representert. En kort, presis e-post fungerer best: NHH MSc Financial Economics + BI bachelor, spesifikk grunn til akkurat det selskapet, tilgjengelig fra slutten av juni, CV og karakterutskrift vedlagt.</p>
+
+  <div class="tip-box">
+    <strong>Tips:</strong> Bruk NHH-alumninettverket aktivt. NHHS Aksjeklubben, NHH Finance Club og Bindeleddet har alle forbindelser til disse selskapene og kan hjelpe med varme introduksjoner – mye mer effektivt enn kald e-post.
+  </div>
+
+  <h3>Kapitalforvaltning og hedgefond</h3>
+  <div class="opp-grid">
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Ferd Capital <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Familiekontor / PE · Norges største private investeringsselskap</div>
+        </div>
+        <a href="https://ferd.teamtailor.com" target="_blank" class="opp-link">Karrieresider ↗</a>
+      </div>
+      <div class="opp-desc">Johan H. Andresens familiekontor. Driver strukturert betalt internship-program (4–6 måneder), og Ferd Capital er kjent for å ansette NHH-studenter. Kontakt HR direkte. Ferd er det sterkeste enkeltmålet blant familiekontorene – høy prestisje og ekte læringsverdi.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>karriere@ferd.no</div>
+        <div class="opp-meta-item"><strong>Type</strong>PE, venture, børsnotert</div>
+        <div class="opp-meta-item"><strong>Referanse</strong>Bindeleddet har hatt utlysning for Ferd Capital internship</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Sector Asset Management <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Hedgefond · Oslo, TMT-fokus</div>
+        </div>
+        <a href="https://www.sector.no" target="_blank" class="opp-link">Nettside ↗</a>
+      </div>
+      <div class="opp-desc">Et av Norges mest prestisjefylte hedgefond med sterk TMT-profil. Liten organisasjon der direktekontakt med porteføljeforvaltere er mulig. Primær kontakt via LinkedIn.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Type</strong>Long/short equity, TMT</div>
+        <div class="opp-meta-item"><strong>Tilnærming</strong>LinkedIn-kontakt til partnere</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Sissener AS <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Hedgefond · Jan Petter Sissener</div>
+        </div>
+        <a href="https://www.sissener.no" target="_blank" class="opp-link">Nettside ↗</a>
+      </div>
+      <div class="opp-desc">Jan Petter Sisseners boutique-hedgefond. Liten nok til at PM-er responderer på gode kandidater direkte. Europafokus med sterk fundamental analyse.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>post@sissener.no</div>
+        <div class="opp-meta-item"><strong>Type</strong>Long/short equity, fundamental</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Borea Asset Management <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Kapitalforvaltning · Bergen/Oslo</div>
+        </div>
+        <a href="https://borea.no" target="_blank" class="opp-link">Nettside ↗</a>
+      </div>
+      <div class="opp-desc">Borea har tidligere lyst ut summer internship i fondsforvaltning eksplisitt, og er dermed et dokumentert mål. Nordisk aksje- og rentefokus.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>post@borea.no</div>
+        <div class="opp-meta-item"><strong>Type</strong>Aksjer, renter, fond</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Alfred Berg (BNP Paribas AM) <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Kapitalforvaltning · Oslo</div>
+        </div>
+        <a href="https://www.alfredberg.no/jobb/" target="_blank" class="opp-link">Karrieresider ↗</a>
+      </div>
+      <div class="opp-desc">BNP Paribas Asset Managements norske arm. Alfred Berg ønsker aktivt studentkontakt ifølge sine egne karrieresider. Nordisk aksje og renteforvaltning.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Type</strong>Nordisk aksje, renter</div>
+        <div class="opp-meta-item"><strong>Tilnærming</strong>Via karrieresider eller post@alfredberg.no</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Taiga Fund Management <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Hedgefond · Small/mid-cap Nordic</div>
+        </div>
+        <a href="https://taigafund.no" target="_blank" class="opp-link">Nettside ↗</a>
+      </div>
+      <div class="opp-desc">Henrik Lisæths nordiske small/mid-cap-hedgefond. Sterk fundamental analyse, tett teamstruktur. Kontakt via LinkedIn eller e-post.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Type</strong>Long/short, small/mid-cap</div>
+        <div class="opp-meta-item"><strong>Tilnærming</strong>LinkedIn til porteføljeforvaltere</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Holberg Fondene <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Kapitalforvaltning · Bergen/Oslo</div>
+        </div>
+        <a href="https://holberg.no/om-holberg/jobb" target="_blank" class="opp-link">Karrieresider ↗</a>
+      </div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>Via karrieresider</div>
+        <div class="opp-meta-item"><strong>Type</strong>Aksje, renter, kombinasjon</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Pareto Asset Management <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Kapitalforvaltning · Søsterselskap til Pareto Securities</div>
+        </div>
+        <a href="https://www.paretoam.no" target="_blank" class="opp-link">Nettside ↗</a>
+      </div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>post@paretoam.no</div>
+        <div class="opp-meta-item"><strong>Type</strong>Nordisk aksje, kredit</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Arctic Asset Management <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Kapitalforvaltning · Søsterselskap til Arctic Securities</div>
+        </div>
+        <a href="https://www.arcticam.no" target="_blank" class="opp-link">Nettside ↗</a>
+      </div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>post@arcticam.no</div>
+        <div class="opp-meta-item"><strong>Type</strong>Nordisk aksje og kredit</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3>Boutique IB, analyse og megling</h3>
+  <div class="opp-grid">
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Fondsfinans <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Megling / Analyse · Oslo</div>
+        </div>
+        <a href="https://www.fondsfinans.no/om-oss/karriere" target="_blank" class="opp-link">Karrieresider ↗</a>
+      </div>
+      <div class="opp-desc">Uavhengig norsk meglerhus med sterk equity research-tradisjon. Godt egnet for kandidater med interesse for aksjeanalyse og norsk næringsliv.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>post@fondsfinans.no</div>
+        <div class="opp-meta-item"><strong>Type</strong>Equity Research, megling</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Fearnley Securities <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">IB / Megling · Shipping og offshore-fokus</div>
+        </div>
+        <a href="https://astrupfearnley.com/careers/" target="_blank" class="opp-link">Karrieresider ↗</a>
+      </div>
+      <div class="opp-desc">Del av Astrup Fearnley-gruppen. Sterk posisjon innen shipping, offshore og energi-IB. Relevant for kandidater med interesse for realøkonomi og norsk industri.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Type</strong>Shipping IB, ECM, DCM</div>
+        <div class="opp-meta-item"><strong>Kontakt</strong>Via Astrup Fearnley karrieresider</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Clarksons Platou Securities <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">IB · Shipping og offshore</div>
+        </div>
+        <a href="https://clarksonplatou.com/career" target="_blank" class="opp-link">Karrieresider ↗</a>
+      </div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Type</strong>Shipping IB, ECM</div>
+        <div class="opp-meta-item"><strong>Kontakt</strong>recruitment@clarksonplatou.com</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Norne Securities <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Megling og analyse · Oslo/Bergen</div>
+        </div>
+        <a href="https://www.norne.no/om-norne/ledige-stillinger" target="_blank" class="opp-link">Stillinger ↗</a>
+      </div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>post@norne.no</div>
+        <div class="opp-meta-item"><strong>Type</strong>Aksjer, obligasjoner, rådgivning</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Reiten & Co <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Corporate Finance / M&A boutique · Oslo</div>
+        </div>
+        <a href="https://www.reiten.no" target="_blank" class="opp-link">Nettside ↗</a>
+      </div>
+      <div class="opp-desc">Uavhengig boutique-rådgiver med lang historie innen norsk M&A. Liten organisasjon – direktekontakt med partnere er realistisk.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>post@reiten.no</div>
+        <div class="opp-meta-item"><strong>Type</strong>M&A rådgivning, corporate finance</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Saga Corporate Finance <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Corporate Finance / M&A boutique · Oslo</div>
+        </div>
+        <a href="https://sagacf.no" target="_blank" class="opp-link">Nettside ↗</a>
+      </div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>post@sagacf.no</div>
+        <div class="opp-meta-item"><strong>Type</strong>M&A, ECM, kapitalinnhenting</div>
+      </div>
+    </div>
+
+    <div class="opp-card proactive">
+      <div class="opp-card-header">
+        <div>
+          <div class="opp-name">Awilhelmsen Group / Awilco <span class="badge badge-proactive">Åpen søknad</span></div>
+          <div class="opp-type">Familiekontor / Shipping-investering · Oslo</div>
+        </div>
+        <a href="https://www.awilhelmsen.com/career" target="_blank" class="opp-link">Nettside ↗</a>
+      </div>
+      <div class="opp-desc">Wilhelmsen-familiens investeringsselskap. Har historisk hatt én til to sommerpraktikanter. Sterk internasjonal profil og diversifisert portefølje.</div>
+      <div class="opp-meta">
+        <div class="opp-meta-item"><strong>Kontakt</strong>hr@awilhelmsen.com</div>
+        <div class="opp-meta-item"><strong>Type</strong>Porteføljeinvesteringer, shipping</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 3: LUKKEDE PROGRAMMER -->
+  <div class="section-label">Oversikt — Lukkede programmer sommer 2026</div>
+  <h2>Formelle internship-program med passerte frister</h2>
+  <p>Disse programmene er lukket for sommer 2026, men inkluderes for fullstendighetens skyld og for dokumentasjon av søknadsfrister. Samtlige er relevante for fastjobb-søknaden etter ferdig master i 2027.</p>
+
+  <table class="deadline-table">
+    <thead>
+      <tr>
+        <th>Selskap</th>
+        <th>Program</th>
+        <th>Frist 2026 (lukket)</th>
+        <th>Type</th>
+        <th>Lenke</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="firm-name">NBIM (Oljefondet)</span></td>
+        <td>Summer Internship Oslo/London/NY</td>
+        <td><span class="closed-text">6. okt 2025</span></td>
+        <td>Kapitalforvaltning, kvant, risiko</td>
+        <td><a href="https://www.nbim.no/en/about-us/career/summer-internship/" target="_blank">nbim.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">KLP Kapitalforvaltning</span></td>
+        <td>Internship Sommer</td>
+        <td><span class="closed-text">21. sep 2025</span></td>
+        <td>Aksje, renter, ESG</td>
+        <td><a href="https://www.klp.no/om-klp/jobb/internship" target="_blank">klp.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Folketrygdfondet</span></td>
+        <td>Sommerstudent (2 plasser)</td>
+        <td><span class="closed-text">Sep 2025</span></td>
+        <td>Aksje, kreditt</td>
+        <td><a href="https://www.folketrygdfondet.no" target="_blank">folketrygdfondet.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">ODIN Forvaltning</span></td>
+        <td>Summer Internship</td>
+        <td><span class="closed-text">Sep 2025</span></td>
+        <td>Aksjeforvaltning, ESG</td>
+        <td><a href="https://odinfond.no/om-odin/karriere" target="_blank">odinfond.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">SpareBank 1 Markets</span></td>
+        <td>IB Summer Internship</td>
+        <td><span class="closed-text">Aug–sep 2025</span></td>
+        <td>IB, ECM, DCM, Research</td>
+        <td><a href="https://sb1markets.no/karriere" target="_blank">sb1markets.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Arctic Securities</span></td>
+        <td>IB + Equity/Credit Research</td>
+        <td><span class="closed-text">14. aug 2025</span></td>
+        <td>IB, Research</td>
+        <td><a href="https://www.arctic.com/career/open-positions" target="_blank">arctic.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">ABG Sundal Collier</span></td>
+        <td>IB & Research Internship Oslo</td>
+        <td><span class="closed-text">15. aug 2025</span></td>
+        <td>IB, Research, Sales & Trading</td>
+        <td><a href="https://abgsc.teamtailor.com" target="_blank">abgsc.teamtailor.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">SEB Oslo</span></td>
+        <td>Corporate Finance / Equity Research / PWM</td>
+        <td><span class="closed-text">14. aug 2025</span></td>
+        <td>Corp Finance, Research, PWM</td>
+        <td><a href="https://seb.no/om-seb/karriere/summer-internship" target="_blank">seb.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Danske Bank Corp Finance</span></td>
+        <td>Internship Oslo</td>
+        <td><span class="closed-text">6. aug 2025</span></td>
+        <td>Corporate Finance</td>
+        <td><a href="https://danskebank.com/careers" target="_blank">danskebank.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Storebrand Sandbox</span></td>
+        <td>Fintech/bærekraft-program</td>
+        <td><span class="closed-text">Høst 2025</span></td>
+        <td>Fintech, ESG, forsikring</td>
+        <td><a href="https://www.storebrand.no/karriere" target="_blank">storebrand.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Gjensidige</span></td>
+        <td>Summer Internship (inkl. Investments)</td>
+        <td><span class="closed-text">Høst 2025</span></td>
+        <td>Investering, aktuarrisk, finans</td>
+        <td><a href="https://www.gjensidige.no/om-oss/jobb/internships" target="_blank">gjensidige.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">DNB Asset Management</span></td>
+        <td>Summer Intern (Equities)</td>
+        <td><span class="closed-text">14. feb 2026</span></td>
+        <td>Aksjeforvaltning</td>
+        <td><a href="https://jobb.dnb.no" target="_blank">jobb.dnb.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">DNB Markets</span></td>
+        <td>IBD, FICC, Equity & Research</td>
+        <td><span class="closed-text">Jan–feb 2026</span></td>
+        <td>Markets, IB, Research</td>
+        <td><a href="https://jobb.dnb.no" target="_blank">jobb.dnb.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Nordea Markets / LC&I</span></td>
+        <td>Markets + IB rotational</td>
+        <td><span class="closed-text">15. mars 2026</span></td>
+        <td>Markets, IB, Structured Finance</td>
+        <td><a href="https://www.nordea.com/en/careers/students-interns-at-nordea-lci" target="_blank">nordea.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Argentum Fondsinvesteringer</span></td>
+        <td>Investment Intern 2026</td>
+        <td><span class="closed-text">Tidlig 2026</span></td>
+        <td>PE fund-of-funds, co-invest</td>
+        <td><a href="https://career.argentum.no" target="_blank">career.argentum.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">FSN Capital</span></td>
+        <td>PE Investment Internship</td>
+        <td><span class="closed-text">Høst 2025</span></td>
+        <td>Private Equity</td>
+        <td><a href="https://www.fsncapital.com/en/about/career" target="_blank">fsncapital.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Norvestor Equity</span></td>
+        <td>PE Internship Oslo (6–12 mnd)</td>
+        <td><span class="closed-text">18. aug 2025</span></td>
+        <td>Private Equity, mid-market</td>
+        <td><a href="https://norvestor.com" target="_blank">norvestor.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Verdane</span></td>
+        <td>Investment Internship (6–9 mnd)</td>
+        <td><span class="closed-text">Høst 2025</span></td>
+        <td>Growth PE, tech-fokus</td>
+        <td><a href="https://careers.verdane.com" target="_blank">careers.verdane.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Summa Equity</span></td>
+        <td>Investment Internship</td>
+        <td><span class="closed-text">Tidlig høst 2025</span></td>
+        <td>Impact PE</td>
+        <td><a href="https://www.summaequity.com/company/career" target="_blank">summaequity.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Deloitte Financial Advisory</span></td>
+        <td>Summer Internship</td>
+        <td><span class="closed-text">Sep 2025</span></td>
+        <td>M&A, valuering, due diligence</td>
+        <td><a href="https://www.deloitte.com/no/no/careers/life-at-deloitte/internship.html" target="_blank">deloitte.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">EY-Parthenon Norway</span></td>
+        <td>Elevate@EY</td>
+        <td><span class="closed-text">14. sep 2025</span></td>
+        <td>Strategy, corporate finance</td>
+        <td><a href="https://www.ey.com/no_no/careers" target="_blank">ey.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">PwC Norway</span></td>
+        <td>Summer Internship (Deals/Strategy&)</td>
+        <td><span class="closed-text">Høst 2025</span></td>
+        <td>Deals, Strategy&</td>
+        <td><a href="https://www.pwc.no/no/karriere" target="_blank">pwc.no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">KPMG Deal Advisory</span></td>
+        <td>Summer Internship</td>
+        <td><span class="closed-text">1. mars 2026</span></td>
+        <td>M&A, valuering, restructuring</td>
+        <td><a href="https://www.kpmg.com/no" target="_blank">kpmg.com/no ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">BCG Oslo</span></td>
+        <td>Visiting Associate / +You</td>
+        <td><span class="closed-text">+You: 26. apr 2026</span></td>
+        <td>Strategi, management consulting</td>
+        <td><a href="https://careers.bcg.com" target="_blank">careers.bcg.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Kearney Oslo</span></td>
+        <td>Consulting Internship</td>
+        <td><span class="closed-text">8. sep 2025</span></td>
+        <td>Management consulting</td>
+        <td><a href="https://www.kearney.com/about/locations/norway/careers" target="_blank">kearney.com ↗</a></td>
+      </tr>
+      <tr>
+        <td><span class="firm-name">Arkwright</span></td>
+        <td>Consulting Internship</td>
+        <td><span class="closed-text">21. sep 2025</span></td>
+        <td>Strategy consulting</td>
+        <td><a href="https://www.arkwright.com/job-postings" target="_blank">arkwright.com ↗</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 4: HANDLINGSPLAN -->
+  <div class="section-label">Handlingsplan</div>
+  <h2>Hva bør gjøres de neste fire ukene</h2>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Uke 1 — Umiddelbart</div>
+      <div class="tl-title">Send de fire høyprioritetssøknadene</div>
+      <div class="tl-desc">Pareto Securities (åpen IB-søknad), Arctic Securities (proaktiv e-post), McKinsey Norge (rullerende internship), Arctic Asset Management (proaktiv e-post). Disse er de realistiske offentlige kanalene som er åpne nå.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Uke 1–2</div>
+      <div class="tl-title">Proaktiv kampanje til 15–20 boutique-selskaper</div>
+      <div class="tl-desc">Prioriter Ferd Capital, Sector AM, Sissener, Borea, Alfred Berg, Taiga, Holberg, Pareto AM, Fondsfinans, Fearnley, Reiten & Co, Saga CF, Awilhelmsen, Norne og Clarksons Platou. Én kortfattet e-post per selskap med CV og karakterutskrift vedlagt.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Uke 2–3</div>
+      <div class="tl-title">Aktiver NHH-alumninettverket</div>
+      <div class="tl-desc">Kontakt NHHS Aksjeklubben, NHH Finance Club og Bindeleddet. Søk på LinkedIn etter NHH-alumni i målselskapene og be om en kort prat. En varm introduksjon er dramatisk mer effektiv enn kald e-post i det norske finansmiljøet.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Løpende</div>
+      <div class="tl-title">Overvåk finn.no og karrierestart.no daglig</div>
+      <div class="tl-desc">Erstatningsplasser dukker opp i mai og juni når aksepterte kandidater trekker seg. Sett opp jobbvarsler på finn.no (Bank/finans/forsikring, Oslo), karrierestart.no og karriere.no. Sjekk også LinkedIn Jobs med søk på "internship Oslo finans".</div>
+    </div>
+  </div>
+
+  <div class="tip-box" style="margin-top: 36px;">
+    <strong>Malen for åpen søknad (e-post):</strong><br>
+    «Jeg er andreårsstudent (ett år igjen) på NHH MSc in Economics and Business Administration, Financial Economics, og har en bachelor fra BI Norwegian Business School. Jeg er på jakt etter en relevant sommerpraktikantjobb fra slutten av juni til slutten av august 2026 og er spesielt interessert i [firmaets spesialisering] fordi [spesifikk grunn]. Jeg vedlegger CV og karakterutskrift, og tar gjerne en kort samtale om mulighetene. Med vennlig hilsen [Navn].»
+    <br><br>Hold det til fire–fem setninger. Ikke lengre.
+  </div>
+
+</main>
+
+<footer>
+  Rapport utarbeidet <span>mai 2026</span> · NHH MSc Financial Economics · Oslo og omegn
+</footer>
+
+</body>
+</html>
