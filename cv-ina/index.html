@@ -147,16 +147,148 @@
     }, [onLeft, onRight]);
   }
 
-  function exportPDF(rootEl, filnavn = 'cv-ina-ronningen') {
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function exportPDF(filnavn = 'cv-ina-ronningen') {
+    const data = window.CV_DATA;
+    const F = window.CV_FARGER;
+    const portrettImg = document.querySelector('.gl-portrett img');
+    const portrettSrc = portrettImg ? portrettImg.src : '';
+
+    const erfaringNy = [...data.erfaring].sort((a,b) => (b.sortKey ?? 0) - (a.sortKey ?? 0));
+    const utdanningNy = [...data.utdanning].sort((a,b) => (b.sortKey ?? 0) - (a.sortKey ?? 0));
+
+    const erfaringHtml = erfaringNy.map(e => `
+      <article class="p-card" style="--accent:${F[e.farge]}">
+        <div class="p-row">
+          <span class="p-dot" style="background:${F[e.farge]}"></span>
+          <span class="p-meta" style="color:${F[e.farge]}">${escapeHtml(periode(e.fra, e.til))}</span>
+        </div>
+        <h3 class="p-h3">${escapeHtml(e.rolle)}</h3>
+        <div class="p-sub">${escapeHtml(e.sted)}</div>
+        <ul class="p-list">
+          ${e.punkter.map(p => `<li><span class="p-bullet" style="background:${F[e.farge]}"></span>${escapeHtml(p)}</li>`).join('')}
+        </ul>
+      </article>`).join('');
+
+    const utdanningHtml = utdanningNy.map(u => `
+      <article class="p-card" style="--accent:${F[u.farge]}">
+        <div class="p-row">
+          <span class="p-dot" style="background:${F[u.farge]}"></span>
+          <span class="p-meta" style="color:${F[u.farge]}">${escapeHtml(periode(u.fra, u.til))}</span>
+        </div>
+        <h3 class="p-h3" style="font-size:16px">${escapeHtml(u.sted)}</h3>
+        <div class="p-sub">${escapeHtml(u.grad)}</div>
+        <div class="p-detail">${escapeHtml(u.detalj)}</div>
+      </article>`).join('');
+
+    const ferdGruppe = (tittel, items) => `
+      <div class="p-card">
+        <div class="p-meta">${escapeHtml(tittel)}</div>
+        <div class="p-chips">
+          ${items.map(it => `<span class="p-chip">${escapeHtml(it.navn)}</span>`).join('')}
+        </div>
+      </div>`;
+
+    const sprakItems = data.ferdigheter.sprak.map(s => ({...s, navn: `${s.navn} · ${s.niva}`}));
+    const ferdigheterHtml = ferdGruppe('Språk', sprakItems) + ferdGruppe('Tekniske verktøy', data.ferdigheter.teknisk) + ferdGruppe('Personlig', data.ferdigheter.personlig);
+
+    const engasjementHtml = data.engasjement.map(g => `
+      <div class="p-card" style="--accent:${F[g.farge]}">
+        <div class="p-row">
+          <span class="p-dot" style="background:${F[g.farge]}"></span>
+          <span class="p-meta" style="color:${F[g.farge]}">Frivillig</span>
+        </div>
+        <div style="font-size:15px;font-weight:500;margin-top:4px">${escapeHtml(g.rolle)}</div>
+        <div class="p-detail">${escapeHtml(g.sted)}</div>
+      </div>`).join('');
+
+    const css = `
+      @page { size: A4; margin: 14mm; }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+        color: #1a1a1a; background: #fff;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pdf-root { padding: 4mm 0; }
+      .p-header { display: flex; gap: 24px; align-items: flex-start; margin-bottom: 20px;
+        padding-bottom: 18px; border-bottom: 1px solid #e6e6e6; }
+      .p-name { flex: 1; }
+      .p-h1 { font-size: 42px; line-height: 1; margin: 0; font-weight: 600; letter-spacing: -0.03em; color: #111; }
+      .p-tagline { font-size: 14px; color: #555; margin: 8px 0 0; }
+      .p-contacts { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 11.5px; color: #444; }
+      .p-contact { display: inline-flex; align-items: center; gap: 5px; }
+      .p-portrett { width: 96px; height: 120px; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+      .p-portrett img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .p-section-h { font-size: 18px; margin: 22px 0 10px; font-weight: 600; letter-spacing: -0.01em; color: #111;
+        padding-bottom: 4px; border-bottom: 1px solid #e6e6e6; }
+      .p-grid { display: grid; gap: 14px; }
+      .p-grid-2 { display: grid; gap: 14px 24px; grid-template-columns: 1fr 1fr; }
+      .p-card { padding: 0; page-break-inside: avoid; border-left: 2px solid var(--accent, #ddd); padding-left: 12px; }
+      .p-card-plain { padding: 0; page-break-inside: avoid; }
+      .p-row { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+      .p-dot { display: none; }
+      .p-meta { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: #888; font-weight: 500; }
+      .p-h3 { margin: 1px 0 1px; font-size: 14px; font-weight: 600; letter-spacing: -0.005em; color: #111; }
+      .p-sub { color: #444; font-size: 12.5px; margin-top: 1px; }
+      .p-detail { color: #777; font-size: 11.5px; margin-top: 2px; }
+      .p-list { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 3px; }
+      .p-list li { padding-left: 12px; position: relative; font-size: 12px; line-height: 1.5; color: #333; }
+      .p-list li::before { content: '·'; position: absolute; left: 2px; top: -2px; color: #888; font-size: 16px; }
+      .p-bullet { display: none; }
+      .p-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+      .p-chip { display: inline-flex; align-items: center; padding: 3px 9px;
+        font-size: 11px; border: 1px solid #d8d8d8; border-radius: 4px; color: #333; background: #fafafa; }
+      .p-profil { margin: 0; font-size: 12.5px; line-height: 1.6; color: #333; }
+      .p-foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid #e6e6e6;
+        font-size: 10.5px; color: #888; display: flex; justify-content: space-between; }
+    `;
+
+    const html = `<!doctype html><html lang="nb"><head><meta charset="utf-8"><title>${escapeHtml(filnavn)}</title>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+      <style>${css}</style></head><body>
+      <div class="pdf-root">
+        <div class="p-header">
+          <div class="p-name">
+            <h1 class="p-h1">Ina<br>Rønningen.</h1>
+            <p class="p-tagline">${escapeHtml(data.tittel)} · NHH</p>
+            <div class="p-contacts">
+              <span class="p-contact">✉ ${escapeHtml(data.kontakt.epost)}</span>
+              <span class="p-contact">☎ ${escapeHtml(data.kontakt.telefon)}</span>
+              <span class="p-contact">⌖ Bergen / Oslo</span>
+              <span class="p-contact">LinkedIn ↗</span>
+            </div>
+          </div>
+          ${portrettSrc ? `<div class="p-portrett"><img src="${portrettSrc}" alt="Ina Rønningen"></div>` : ''}
+        </div>
+
+        <h2 class="p-section-h">Om meg.</h2>
+        <p class="p-profil">${escapeHtml(data.profil)}</p>
+
+        <h2 class="p-section-h">Erfaring.</h2>
+        <div class="p-grid">${erfaringHtml}</div>
+
+        <h2 class="p-section-h">Utdanning.</h2>
+        <div class="p-grid-2">${utdanningHtml}</div>
+
+        <h2 class="p-section-h">Ferdigheter.</h2>
+        <div class="p-grid-2">${ferdigheterHtml}</div>
+
+        <h2 class="p-section-h">Engasjement.</h2>
+        <div class="p-grid-2">${engasjementHtml}</div>
+
+        <div class="p-foot">
+          <span>${escapeHtml(data.kontakt.adresse)}</span>
+          <span>© 2026</span>
+        </div>
+      </div>
+      <scr${''}ipt>window.addEventListener('load', function(){ setTimeout(function(){ window.print(); }, 600); });</scr${''}ipt>
+      </body></html>`;
+
     const w = window.open('', '_blank', 'width=900,height=1200');
     if (!w) { alert('Tillat popup for å eksportere PDF.'); return; }
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-      .map(n => n.outerHTML).join('\n');
-    const html = rootEl.outerHTML;
-    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>' + filnavn + '</title>' + styles +
-      '<style>body{margin:0;background:#0b0b0d;}.cv-print-root{width:210mm;min-height:297mm;margin:0 auto;padding:16mm;}.no-print,[data-no-print]{display:none !important;}@media print{body{background:white;}.cv-print-root{padding:14mm;}}</style>' +
-      '</head><body><div class="cv-print-root">' + html + '</div>' +
-      '<scr' + 'ipt>window.addEventListener("load",function(){setTimeout(function(){window.print();},400);});</scr' + 'ipt></body></html>');
+    w.document.write(html);
     w.document.close();
   }
 
@@ -172,7 +304,7 @@
     fontFamily: '"Space Grotesk", "Inter", system-ui, sans-serif',
     color: '#f0eef7',
     background: 'radial-gradient(ellipse at top left, oklch(28% 0.08 280) 0%, #0a0612 35%, #050309 100%)',
-    width: '100%', minHeight: '100%', boxSizing: 'border-box',
+    width: '100%', minHeight: '100vh', boxSizing: 'border-box',
     position: 'relative', overflow: 'hidden',
   };
 
@@ -263,7 +395,7 @@
               <button className="gl-btn" aria-pressed={sortMode==='tid-ny'} onClick={() => setSortMode('tid-ny')}>Nyest →</button>
               <button className="gl-btn" aria-pressed={sortMode==='tid-gammel'} onClick={() => setSortMode('tid-gammel')}>← Eldst</button>
             </div>
-            <button className="gl-btn" style={{ background: 'linear-gradient(135deg, oklch(70% 0.18 300), oklch(70% 0.16 245))', borderColor: 'transparent', color: '#fff' }} onClick={() => exportPDF(printRef.current)}>↓ Last ned PDF</button>
+            <button className="gl-btn" style={{ background: 'linear-gradient(135deg, oklch(70% 0.18 300), oklch(70% 0.16 245))', borderColor: 'transparent', color: '#fff' }} onClick={() => exportPDF()}>↓ Last ned PDF</button>
           </div>
 
           <div data-no-print className="no-print" style={{ display: 'flex', gap: 6, marginTop: 22, flexWrap: 'wrap' }}>
