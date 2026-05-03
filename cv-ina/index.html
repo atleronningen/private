@@ -7,7 +7,8 @@
   <style>
     html, body { margin: 0; padding: 0; color: #f0eef7;
       font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif; min-height: 100vh; }
-    body { background: #050309 radial-gradient(ellipse at top left, oklch(28% 0.08 280) 0%, #0a0612 35%, #050309 100%) no-repeat fixed; }
+    html { background: #050309; overscroll-behavior-y: none; }
+    body { background: #050309 radial-gradient(ellipse at top left, oklch(28% 0.08 280) 0%, #0a0612 35%, #050309 100%) no-repeat fixed; overflow-x: clip; }
     #app { min-height: 100vh; }
     @media print {
       .no-print, [data-no-print] { display: none !important; }
