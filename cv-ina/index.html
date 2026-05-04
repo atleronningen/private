@@ -6,13 +6,13 @@
   <title>CV — Ina Rønningen</title>
   <style>
     html, body { margin: 0; padding: 0; color: #f0eef7;
-      font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
-      min-height: 100vh; width: 100%; max-width: 100vw; overflow-x: hidden; }
-    html { background: #050309; overscroll-behavior: none; }
-    body { background: #050309; position: relative; }
+      font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif; min-height: 100vh; }
+    html { background: #050309; }
+    body { background: #050309; position: relative; overflow-x: clip; overscroll-behavior-y: contain; }
     body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-      background: radial-gradient(ellipse at top left, oklch(28% 0.08 280) 0%, #0a0612 35%, #050309 100%); }
-    #app { min-height: 100vh; width: 100%; overflow-x: hidden; position: relative; z-index: 0; }
+      background: radial-gradient(ellipse at top left, oklch(28% 0.08 280) 0%, #0a0612 35%, #050309 100%);
+      transform: translateZ(0); will-change: transform; }
+    #app { min-height: 100vh; position: relative; z-index: 0; }
     @media print {
       .no-print, [data-no-print] { display: none !important; }
     }
